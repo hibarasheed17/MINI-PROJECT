@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Products</title>
+    <style>
+        body {
+            background-color: #fff; /* White background */
+            color: #000; /* Black text color */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            text-align: center;
+        }
+
+        #container {
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        button {
+
+            background-color: #000; /* Black button background */
+            font-size: 16px;
+            color: #fff; /* White button text color */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            height:80px;
+            width:100%
+        }
+
+
+        button:hover {
+            background-color: #fff; /* White button background on hover */
+            color: #000; /* Black button text color on hover */
+        }
+
+        .featured-products {
+               text-align: center;
+        }
+
+         .hidden-text {
+      display: none;
+    }
+        .product-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+
+        /* Style for each product item */
+        .product-item {
+            /* Add your styles for each product item */
+             flex: 0 0 calc(25% - 20px); /* Four items per row with 20px gap */
+
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        /* Style for the product button */
+        .product-button {
+            /* Add your styles for the product button */
+            width: 80%;
+            padding: 10px;
+            cursor: pointer;
+            /* Add more styles as needed */
+        }
+
+        /* Style for the product button on hover */
+        .product-button:hover {
+            background-color: #f0f0f0;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+
+<h1><p class="hidden-text" id="instruction"><b>products page, Hover over the screen to find search, cart, orders button and products </b></p></h1>
+<script>
+    // Function to read aloud the message
+    function readAloud() {
+        var instruction = document.getElementById('instruction').innerText;
+        var synth = window.speechSynthesis;
+        var utterance = new SpeechSynthesisUtterance(instruction);
+        synth.speak(utterance);
+    }
+
+    // Execute readAloud function when the window is loaded
+    window.onload = readAloud;
+</script>
+
+
+<form action="/search_products" method="post" id="searchForm">
+    <label for="recognized_search">Product Name:</label>
+    <input type="text" id="recognized_search" name="recognized_search">
+    <button type="button" onmouseover="onHover('Click here to search product')" onclick="handleButtonClick()">SEARCH</button>
+</form>
+
+<form action="{{ url_for('usercart') }}" method="get">
+<button type="submit" id="cart"  onmouseover="onHover('Click here to go to the cart')">CART</button>
+</form>
+
+<form action="{{ url_for('userorders') }}" method="get">
+<button type="submit" id="orders"  onmouseover="onHover('Click here to go to your orders page')" >MY ORDERS</button> <br>
+</form>
+
+
+
+
+
+<p id="confirmationMessage"></p>
+
+<script>
+    function onHover(message) {
+        // Trigger voice instruction
+        speak(message);
+    }
+
+    function speak(text) {
+        var synth = window.speechSynthesis;
+        var utterance = new SpeechSynthesisUtterance(text);
+        synth.speak(utterance);
+    }
+
+</script>
+
+ <h1>Product List</h1>
+
+    <div class="product-container">
+
+        {% for product in products %}
+        <div class="product-item">
+
+            <form method="post" action="{{ url_for('add_product_to_cart', pid=product[0]) }}">
+                <button onclick="speakDetails('Product added to the cart successfully')" class="product-button" onmouseover="speakDetails('{{ product[1] }} {{ product[2] }} {{ product[3] }}')">{{ product[1] }}</button>
+            </form>
+        </div>
+    {% endfor %}
+
+    </div>
+
+
+
+ <script>
+        function speakDetails(details) {
+            // Use the SpeechSynthesis API to say product details
+            var message = new SpeechSynthesisUtterance(details);
+            speechSynthesis.speak(message);
+        }
+
+ </script>
+
+<script>
+
+    // Voice recognition using Web Speech API
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+
+        let isRecognitionActive = false;
+
+        let recognitionState = 'recognize';
+
+    function handleButtonClick() {
+        if (recognitionState === 'recognize') {
+            // Set the field to recognize based on the button clicked
+            recognition.fieldToRecognize = 'search';
+
+            if (!isRecognitionActive) {
+                recognition.start();
+            }
+        } else if (recognitionState === 'submit') {
+            // Submit the form if the state is 'submit'
+            document.getElementById('searchForm').submit();
+        }
+    }
+
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript.trim();
+
+            // Clean the text and determine the field to populate
+            const cleanedText = cleanText(transcript);
+            const fieldToRecognize = recognition.fieldToRecognize;
+
+            // Populate the corresponding input field
+            document.getElementById(`recognized_${fieldToRecognize}`).value = cleanedText;
+
+            // Show the confirmation message
+            showConfirmationMessage(transcript);
+
+            if (fieldToRecognize === 'search') {
+            recognitionState = 'submit';
+            document.querySelector('button').textContent = 'SEARCH';
+
+            // Automatically submit the form after recognizing the product
+            document.getElementById('searchForm').submit();
+        }
+        };
+
+
+        function cleanText(text) {
+            // Remove whitespaces, convert to lowercase, and keep only letters and numbers
+            return text.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        }
+
+        function showConfirmationMessage(text) {
+            const cleanedText = cleanText(text);
+
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            confirmationMessage.textContent = `Recognized: ${cleanedText}`;
+        }
+
+        recognition.onend = function() {
+            isRecognitionActive = false;
+        };
+
+
+
+        function toggleVoiceRecognition() {
+            if (isRecognitionActive) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+
+            isRecognitionActive = !isRecognitionActive;
+        }
+</script>
+
+
+
+</body>
+</html>

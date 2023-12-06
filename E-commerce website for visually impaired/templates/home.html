@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            background-color: #fff; /* White background */
+            color: #000; /* Black text color */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            text-align: center;
+            padding: 50px;
+        }
+
+        #container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        button {
+
+            background-color: #000; /* Black button background */
+            font-size: 16px;
+            color: #fff; /* White button text color */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            width:100%;
+            height:150px;
+        }
+
+        button:hover {
+            background-color: #fff; /* White button background on hover */
+            color: #000; /* Black button text color on hover */
+        }
+
+        .featured-products {
+               text-align: center;
+        }
+
+        .hidden-text {
+      display: none;
+    }
+
+    </style>
+</head>
+<body>
+
+<h1><p class="hidden-text" id="instruction"><b>Welcome, Hover over the screen to find login and signup buttons, Happy shopping.</b></p></h1>
+<script>
+    // Function to read aloud the message
+    function readAloud() {
+        var instruction = document.getElementById('instruction').innerText;
+        var synth = window.speechSynthesis;
+        var utterance = new SpeechSynthesisUtterance(instruction);
+        synth.speak(utterance);
+    }
+
+    // Execute readAloud function when the window is loaded
+    window.onload = readAloud;
+</script>
+
+<form action="{{ url_for('adminlogin') }}" method="get">
+<button type="submit" id="adminLogin" >Admin Login</button> <br>
+</form>
+
+<form action="{{ url_for('gotologin') }}" method="get">
+<button type="submit" id="userLogin" onmouseover="onHover('Click here to login')">User Login</button> <br>
+</form>
+
+<form action="{{ url_for('signup') }}" method="get">
+<button type="submit" id="userSignup" onmouseover="onHover('Click here to sign up')">User Signup</button> <br>
+</form>
+
+<script>
+    function onHover(message) {
+        // Trigger voice instruction
+        speak(message);
+    }
+
+    function speak(text) {
+        var synth = window.speechSynthesis;
+        var utterance = new SpeechSynthesisUtterance(text);
+        synth.speak(utterance);
+    }
+</script>
+
+
+</body>
+</html>

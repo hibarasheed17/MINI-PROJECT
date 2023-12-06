@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        body {
+            background-color: #fff; /* White background */
+            color: #000; /* Black text color */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            text-align: center;
+            padding: 50px;
+        }
+
+        #container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        button {
+
+            background-color: #000; /* Black button background */
+            font-size: 16px;
+            color: #fff; /* White button text color */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            width:100%;
+            height:150px;
+        }
+
+        button:hover {
+            background-color: #fff; /* White button background on hover */
+            color: #000; /* Black button text color on hover */
+        }
+
+        .featured-products {
+               text-align: center;
+        }
+
+        .hidden-text {
+      display: none;
+    }
+
+
+        #customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 90%;
+  margin-top:20px;
+  margin-bottom:20px;
+}
+
+#customers td, #customers th {
+/* border: 1px solid #ddd; */
+  padding: 20px;
+  text-align: center;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+  background-color: #232F3E;
+  color: white;
+}
+
+    </style>
+
+    <title>Cart</title>
+</head>
+<body>
+
+<h1><p class="hidden-text" id="instruction"><b>cart page. Hover over the screen to find cart details and buy button </b></p></h1>
+<script>
+    // Function to read aloud the message
+    function readAloud() {
+        var instruction = document.getElementById('instruction').innerText;
+        var synth = window.speechSynthesis;
+        var utterance = new SpeechSynthesisUtterance(instruction);
+        synth.speak(utterance);
+    }
+
+    // Execute readAloud function when the window is loaded
+    window.onload = readAloud;
+</script>
+
+
+
+
+<button type="submit" id="details"  onmouseover="onHover('Click here to know carted products')" onclick="readTableContents()" >CART</button>
+
+
+<form method="post" action="{{ url_for('buy_all_products') }}">
+    <button type="submit" id="buy-all" onmouseover="onHover('Click here to buy all products')" onclick="speakDetails('All products ordered successfully')">BUY ALL</button>
+</form>
+
+
+<script>
+    function onHover(message) {
+        // Trigger voice instruction
+        speak(message);
+    }
+
+    function speak(text) {
+        var synth = window.speechSynthesis;
+        var utterance = new SpeechSynthesisUtterance(text);
+        synth.speak(utterance);
+    }
+
+     function speakDetails(details) {
+            // Use the SpeechSynthesis API to say product details
+            var message = new SpeechSynthesisUtterance(details);
+            speechSynthesis.speak(message);
+        }
+
+</script>
+
+
+
+
+
+
+
+
+
+<!-- Cart of the user -->
+<h3>Cart Items</h3>
+<table id="customers">
+    <tr>
+        <th>Product Name</th>
+        <th>Product Id</th>
+        <th>Price</th>
+    </tr>
+
+    {% if cartlist %}
+        {% for row in cartlist %}
+            <tr>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[3] }}</td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="3">The cart is empty</td>
+        </tr>
+    {% endif %}
+</table>
+
+
+
+<script>
+    function readTableContents() {
+    // Get all table cells
+    const cells = document.querySelectorAll('table td');
+
+    if (cells.length === 0) {
+        speak('The cart is empty');
+        return;
+    }
+
+    // Concatenate text content of each cell
+    const textToRead = Array.from(cells)
+        .map(cell => cell.textContent)
+        .join('. ');
+
+    // Use text-to-speech API to read the concatenated text
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    speechSynthesis.speak(utterance);
+}
+</script>
+
+
+</body>
+</html>
